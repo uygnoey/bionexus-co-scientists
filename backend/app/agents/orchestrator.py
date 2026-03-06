@@ -9,6 +9,7 @@ from app.agents.generator import GeneratorAgent
 from app.agents.validator import ValidatorAgent
 from app.agents.ranker import RankerAgent
 from app.agents.debate import DebateSystem
+from app.clustering.kmeans import HypothesisClusterer
 
 logger = get_logger(__name__)
 
@@ -22,6 +23,7 @@ class AgentOrchestrator:
         self.validator = ValidatorAgent()
         self.ranker = RankerAgent()
         self.debate_system = DebateSystem()
+        self.clusterer = HypothesisClusterer()
 
     async def generate_hypotheses(
         self,
@@ -88,6 +90,10 @@ class AgentOrchestrator:
         logger.info("Step 4: Ranking hypotheses")
         ranked_hypotheses = await self.ranker.rank(hypotheses)
         
+        # Step 5: Cluster hypotheses
+        logger.info("Step 5: Clustering hypotheses")
+        clusters = await self.clusterer.cluster(ranked_hypotheses)
+        
         # Update status
         for hyp in ranked_hypotheses:
             hyp.status = HypothesisStatus.COMPLETED
@@ -98,13 +104,14 @@ class AgentOrchestrator:
             "Pipeline completed",
             request_id=request_id,
             num_hypotheses=len(ranked_hypotheses),
+            num_clusters=len(clusters),
             generation_time=generation_time,
         )
         
         return HypothesisGenerationResponse(
             request_id=request_id,
             hypotheses=ranked_hypotheses,
-            clusters=[],  # TODO: Clustering
+            clusters=clusters,
             total_papers=len(papers),
             generation_time_seconds=generation_time,
             status=HypothesisStatus.COMPLETED,
