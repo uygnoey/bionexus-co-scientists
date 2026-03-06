@@ -1,5 +1,5 @@
 """Orchestrator for multi-agent hypothesis generation pipeline."""
-from typing import List
+from typing import List, Optional
 import time
 
 from app.core.logging import get_logger
@@ -30,6 +30,7 @@ class AgentOrchestrator:
         papers: List[Paper],
         rag_context: str,
         max_hypotheses: int = 5,
+        session_id: Optional[str] = None,
     ) -> HypothesisGenerationResponse:
         """Run complete hypothesis generation pipeline.
         
@@ -54,8 +55,17 @@ class AgentOrchestrator:
         
         # Step 1: Generate hypotheses
         logger.info("Step 1: Generating hypotheses")
+        
+        if session_id:
+            from app.api.websocket import send_progress_event
+            await send_progress_event(session_id, "generator", 10.0, "Generating hypotheses...")
+        
         hypotheses = await self.generator.generate(papers, rag_context)
         hypotheses = hypotheses[:max_hypotheses]
+        
+        if session_id:
+            from app.api.websocket import send_progress_event
+            await send_progress_event(session_id, "generator", 30.0, f"Generated {len(hypotheses)} hypotheses")
         
         if not hypotheses:
             logger.warning("No hypotheses generated")
@@ -70,7 +80,16 @@ class AgentOrchestrator:
         
         # Step 2: Validate hypotheses
         logger.info(f"Step 2: Validating {len(hypotheses)} hypotheses")
+        
+        if session_id:
+            from app.api.websocket import send_progress_event
+            await send_progress_event(session_id, "validator", 40.0, "Validating hypotheses...")
+        
         validator_results = await self.validator.validate(hypotheses)
+        
+        if session_id:
+            from app.api.websocket import send_progress_event
+            await send_progress_event(session_id, "validator", 60.0, "Validation complete")
         
         # Update hypotheses with validation results
         for hyp in hypotheses:
@@ -82,17 +101,36 @@ class AgentOrchestrator:
         
         # Step 3: Debate
         logger.info("Step 3: Running debate")
+        
+        if session_id:
+            from app.api.websocket import send_progress_event
+            await send_progress_event(session_id, "debate", 70.0, "Running agent debate...")
+        
         debate_rounds = await self.debate_system.run_debate(
             hypotheses, validator_results
         )
         
         # Step 4: Rank hypotheses
         logger.info("Step 4: Ranking hypotheses")
+        
+        if session_id:
+            from app.api.websocket import send_progress_event
+            await send_progress_event(session_id, "ranker", 80.0, "Ranking hypotheses...")
+        
         ranked_hypotheses = await self.ranker.rank(hypotheses)
         
         # Step 5: Cluster hypotheses
         logger.info("Step 5: Clustering hypotheses")
+        
+        if session_id:
+            from app.api.websocket import send_progress_event
+            await send_progress_event(session_id, "clusterer", 90.0, "Clustering hypotheses...")
+        
         clusters = await self.clusterer.cluster(ranked_hypotheses)
+        
+        if session_id:
+            from app.api.websocket import send_progress_event
+            await send_progress_event(session_id, "complete", 100.0, "Pipeline complete!")
         
         # Update status
         for hyp in ranked_hypotheses:
@@ -107,6 +145,14 @@ class AgentOrchestrator:
             num_clusters=len(clusters),
             generation_time=generation_time,
         )
+        
+        if session_id:
+            from app.api.websocket import send_complete_event
+            await send_complete_event(
+                session_id,
+                len(ranked_hypotheses),
+                generation_time,
+            )
         
         return HypothesisGenerationResponse(
             request_id=request_id,

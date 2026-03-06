@@ -49,11 +49,15 @@ async def generate_hypotheses(
         ])
         
         # Step 3: Generate hypotheses
+        import uuid
+        session_id = f"sess_{uuid.uuid4().hex[:8]}"
+        
         orchestrator = AgentOrchestrator()
         response = await orchestrator.generate_hypotheses(
             papers=papers,
             rag_context=rag_context,
             max_hypotheses=request.max_hypotheses,
+            session_id=session_id,
         )
         
         await retriever.close()

@@ -105,10 +105,11 @@ async def root() -> JSONResponse:
 
 
 # Add routers
-from app.api import papers, hypotheses
+from app.api import papers, hypotheses, websocket
 
 app.include_router(papers.router, prefix="/api/papers", tags=["Papers"])
 app.include_router(hypotheses.router, prefix="/api/hypotheses", tags=["Hypotheses"])
+app.include_router(websocket.router, tags=["WebSocket"])
 
 
 if __name__ == "__main__":
