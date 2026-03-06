@@ -104,9 +104,11 @@ async def root() -> JSONResponse:
     )
 
 
-# TODO: Add routers
-# app.include_router(papers_router, prefix="/api/papers", tags=["Papers"])
-# app.include_router(hypotheses_router, prefix="/api/hypotheses", tags=["Hypotheses"])
+# Add routers
+from app.api import papers, hypotheses
+
+app.include_router(papers.router, prefix="/api/papers", tags=["Papers"])
+app.include_router(hypotheses.router, prefix="/api/hypotheses", tags=["Hypotheses"])
 
 
 if __name__ == "__main__":
