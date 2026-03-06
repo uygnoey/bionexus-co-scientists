@@ -193,8 +193,11 @@ npm run test:e2e
 
 ### Phase 1: Foundation (Week 1-4) ✅
 - [x] 프로젝트 기반 구축
-- [ ] Claude Agent SDK 통합
-- [ ] arXiv 연동 & Vector RAG
+- [x] Claude Agent SDK 통합
+- [x] arXiv 연동 & Vector RAG
+- [x] Graph RAG (Neo4j)
+- [x] API 라우터
+- [x] Docker Compose 설정
 
 ### Phase 2: Core Features (Week 5-8) 🚧
 - [ ] Graph RAG (Neo4j)
