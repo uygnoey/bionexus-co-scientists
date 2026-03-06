@@ -1,0 +1,170 @@
+[tool.poetry]
+name = "bionexus-co-scientists-backend"
+version = "0.1.0"
+description = "BioNexus Co-scientists Backend - AI-powered scientific hypothesis generation"
+authors = ["Yeongyu Yang <your@email.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "app"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+# FastAPI & Server
+fastapi = "^0.109.0"
+uvicorn = {extras = ["standard"], version = "^0.27.0"}
+gunicorn = "^21.2.0"
+python-multipart = "^0.0.6"
+
+# Claude Agent SDK
+anthropic = "^0.18.0"
+# Note: @anthropic-ai/claude-agent-sdk는 TypeScript 전용
+# Python에서는 anthropic SDK로 직접 구현
+
+# Database
+neo4j = "^5.16.0"
+qdrant-client = "^1.7.0"
+redis = {extras = ["hiredis"], version = "^5.0.1"}
+
+# RAG & Embeddings
+openai = "^1.10.0"
+sentence-transformers = "^2.3.1"
+langchain = "^0.1.4"
+langchain-community = "^0.0.14"
+
+# arXiv & PDF Processing
+arxiv = "^2.1.0"
+PyMuPDF = "^1.23.0"
+pdfplumber = "^0.10.0"
+
+# NLP & ML
+spacy = "^3.7.0"
+scikit-learn = "^1.4.0"
+numpy = "^1.26.0"
+pandas = "^2.1.0"
+
+# Async & Utilities
+httpx = "^0.26.0"
+aiofiles = "^23.2.0"
+python-dotenv = "^1.0.0"
+pydantic = "^2.5.0"
+pydantic-settings = "^2.1.0"
+
+# Monitoring & Logging
+structlog = "^24.1.0"
+prometheus-client = "^0.19.0"
+
+# WebSocket
+python-socketio = "^5.11.0"
+
+[tool.poetry.group.dev.dependencies]
+# Testing
+pytest = "^7.4.0"
+pytest-asyncio = "^0.23.0"
+pytest-cov = "^4.1.0"
+pytest-mock = "^3.12.0"
+hypothesis = "^6.92.0"
+
+# Code Quality
+black = "^23.12.0"
+isort = "^5.13.0"
+flake8 = "^7.0.0"
+mypy = "^1.8.0"
+pylint = "^3.0.0"
+
+# Dev Tools
+ipython = "^8.19.0"
+httpie = "^3.2.0"
+
+[tool.poetry.group.docs.dependencies]
+mkdocs = "^1.5.0"
+mkdocs-material = "^9.5.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 100
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--cov=app",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-branch",
+]
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_calls = true
+disallow_untyped_decorators = false
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "arxiv.*",
+    "fitz.*",
+    "pdfplumber.*",
+    "qdrant_client.*",
+    "neo4j.*",
+]
+ignore_missing_imports = true
+
+[tool.coverage.run]
+source = ["app"]
+omit = [
+    "*/tests/*",
+    "*/__init__.py",
+    "*/migrations/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
