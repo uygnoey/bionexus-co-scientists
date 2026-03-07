@@ -30,7 +30,7 @@ export default function HypothesesPage() {
     try {
       const ids = paperIds.split(',').map(id => id.trim())
       
-      const response = await fetch('http://localhost:8000/api/hypotheses/generate', {
+      const response = await fetch('http://localhost:9000/api/hypotheses/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

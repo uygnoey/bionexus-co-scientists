@@ -105,11 +105,13 @@ docker-compose up -d
 
 #### 4. 접속
 
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:8000
-- **API Docs (Swagger)**: http://localhost:8000/docs
+- **Frontend**: http://localhost:9001
+- **Backend API**: http://localhost:9000
+- **API Docs (Swagger)**: http://localhost:9000/docs
 - **Neo4j Browser**: http://localhost:7474
 - **Qdrant Dashboard**: http://localhost:6333/dashboard
+
+📖 **자세한 실행 방법은 [QUICKSTART.md](./QUICKSTART.md)를 참고하세요!**
 
 ---
 

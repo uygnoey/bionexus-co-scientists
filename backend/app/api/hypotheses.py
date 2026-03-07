@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException
 from typing import List
 
 from app.core.logging import get_logger
+from app.core.cache import cache, cache_key
 from app.models.hypothesis import HypothesisGenerationRequest, HypothesisGenerationResponse
 from app.arxiv.client import ArxivClient
 from app.rag.embeddings import EmbeddingGenerator
@@ -27,6 +28,13 @@ async def generate_hypotheses(
         HypothesisGenerationResponse with generated hypotheses
     """
     logger.info(f"Generating hypotheses for {len(request.paper_ids)} papers")
+    
+    # Check cache
+    cache_k = cache_key("hypotheses", "generate", *sorted(request.paper_ids))
+    cached = await cache.get(cache_k)
+    if cached:
+        logger.info("Cache hit for hypothesis generation")
+        return HypothesisGenerationResponse(**cached)
     
     try:
         # Step 1: Fetch papers
@@ -61,6 +69,9 @@ async def generate_hypotheses(
         )
         
         await retriever.close()
+        
+        # Cache result (30 minutes)
+        await cache.set(cache_k, response.model_dump(), ttl=1800)
         
         return response
     

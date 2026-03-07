@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException, Query
 from typing import List, Optional
 
 from app.core.logging import get_logger
+from app.core.cache import cache, cache_key
 from app.models.paper import Paper
 from app.arxiv.client import ArxivClient
 
@@ -26,9 +27,20 @@ async def search_papers(
     """
     logger.info(f"Searching papers: {query}")
     
+    # Check cache first
+    cache_k = cache_key("papers", "search", query, str(max_results))
+    cached = await cache.get(cache_k)
+    if cached:
+        logger.info(f"Cache hit for papers search: {query}")
+        return [Paper(**p) for p in cached]
+    
     try:
         client = ArxivClient(max_results=max_results)
         papers = await client.search_papers(query, max_results=max_results)
+        
+        # Cache results (1 hour)
+        await cache.set(cache_k, [p.model_dump() for p in papers], ttl=3600)
+        
         return papers
     except Exception as e:
         logger.error(f"Error searching papers: {e}")

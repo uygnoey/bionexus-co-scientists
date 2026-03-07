@@ -8,6 +8,8 @@ from fastapi.responses import JSONResponse
 
 from app.core.config import settings
 from app.core.logging import configure_logging, get_logger
+from app.core.cache import cache
+from app.core.rate_limit import rate_limit_middleware
 
 # Configure logging on startup
 configure_logging()
@@ -31,10 +33,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         debug=settings.debug,
     )
     
-    # TODO: Initialize database connections
-    # - Neo4j
-    # - Qdrant
-    # - Redis
+    # Initialize Redis cache
+    await cache.connect()
     
     logger.info("Application startup complete")
     
@@ -43,7 +43,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # Shutdown
     logger.info("Shutting down application")
     
-    # TODO: Close database connections
+    # Disconnect Redis cache
+    await cache.disconnect()
     
     logger.info("Application shutdown complete")
 
@@ -67,6 +68,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Add rate limiting middleware
+app.middleware("http")(rate_limit_middleware)
 
 
 # Health check endpoint

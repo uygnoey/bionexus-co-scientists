@@ -18,7 +18,7 @@ export default function PapersPage() {
 
     try {
       const response = await fetch(
-        `http://localhost:8000/api/papers/search?query=${encodeURIComponent(query)}&max_results=10`
+        `http://localhost:9000/api/papers/search?query=${encodeURIComponent(query)}&max_results=10`
       )
 
       if (!response.ok) {
