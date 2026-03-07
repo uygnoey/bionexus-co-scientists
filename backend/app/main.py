@@ -71,13 +71,25 @@ app = FastAPI(
 )
 
 # Add CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.cors_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+if settings.allow_all_origins:
+    # For Tailscale/development: allow all origins
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=False,  # Can't use credentials with allow_origins=*
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+else:
+    # Production: specific origins only + Tailscale pattern
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_origins,
+        allow_origin_regex=r"https?://100\.[0-9]+\.[0-9]+\.[0-9]+(:[0-9]+)?",  # Tailscale IPs
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 # Add rate limiting middleware
 app.middleware("http")(rate_limit_middleware)
@@ -135,9 +147,10 @@ app.include_router(websocket.router, tags=["WebSocket"])
 if __name__ == "__main__":
     import uvicorn
 
+    # 0.0.0.0으로 바인딩하여 Tailscale 접속 허용
     uvicorn.run(
         "app.main:app",
-        host=settings.api_host,
+        host="0.0.0.0",  # 모든 인터페이스에서 접근 가능
         port=settings.api_port,
         reload=settings.debug,
         log_level=settings.log_level.lower(),

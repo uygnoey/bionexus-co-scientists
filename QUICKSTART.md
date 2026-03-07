@@ -1,11 +1,31 @@
 # 🚀 빠른 시작 가이드
 
 ## 포트 정보
-- **Backend API**: http://localhost:9000
-- **Frontend**: http://localhost:9001
+- **Backend API**: http://localhost:9000 (Tailscale: http://YOUR_TAILSCALE_IP:9000)
+- **Frontend**: http://localhost:9001 (Tailscale: http://YOUR_TAILSCALE_IP:9001)
 - **Neo4j**: http://localhost:7474
 - **Qdrant**: http://localhost:6333
 - **Redis**: localhost:6379
+
+## 🌐 Tailscale 원격 접속
+
+자세한 가이드: [TAILSCALE.md](./TAILSCALE.md)
+
+**빠른 설정:**
+```bash
+# 1. Tailscale IP 확인
+tailscale ip -4
+
+# 2. Backend에 환경 변수 추가 (.env)
+ALLOW_ALL_ORIGINS=true  # 개발용: 모든 origin 허용
+
+# 3. Frontend 환경 변수 (.env.local)
+NEXT_PUBLIC_API_URL=http://100.64.1.2:9000  # 실제 Tailscale IP로 변경
+NEXT_PUBLIC_WS_URL=ws://100.64.1.2:9000
+
+# 4. 서버 실행
+poetry run uvicorn app.main:app --host 0.0.0.0 --port 9000
+```
 
 ---
 

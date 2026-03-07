@@ -17,8 +17,9 @@ export default function PapersPage() {
     setPapers([])
 
     try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9000'
       const response = await fetch(
-        `http://localhost:9000/api/papers/search?query=${encodeURIComponent(query)}&max_results=10`
+        `${apiUrl}/api/papers/search?query=${encodeURIComponent(query)}&max_results=10`
       )
 
       if (!response.ok) {

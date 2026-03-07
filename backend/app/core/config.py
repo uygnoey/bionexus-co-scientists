@@ -50,8 +50,13 @@ class Settings(BaseSettings):
 
     # CORS
     cors_origins: List[str] = Field(
-        default=["http://localhost:3000", "http://localhost:8000"],
+        default=["http://localhost:9001", "http://localhost:9000"],
         description="CORS allowed origins",
+    )
+    
+    allow_all_origins: bool = Field(
+        default=False,
+        description="Allow all origins (for Tailscale/development)",
     )
 
     @field_validator("cors_origins", mode="before")
@@ -59,7 +64,9 @@ class Settings(BaseSettings):
     def parse_cors_origins(cls, v: str | List[str]) -> List[str]:
         """Parse CORS origins from string or list."""
         if isinstance(v, str):
-            return [origin.strip() for origin in v.strip("[]").split(",")]
+            # Support wildcard for Tailscale
+            origins = [origin.strip().strip('"') for origin in v.strip("[]").split(",")]
+            return origins
         return v
 
     # Rate Limiting

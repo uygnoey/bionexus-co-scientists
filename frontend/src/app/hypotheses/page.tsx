@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
+import { WebSocketClient, ProgressEvent } from '../../lib/websocket'
 
 // Dynamic import to avoid SSR issues with charts
 const HypothesisScoreChart = dynamic(
@@ -17,6 +18,9 @@ export default function HypothesesPage() {
   const [paperIds, setPaperIds] = useState('')
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState<any>(null)
+  const [progress, setProgress] = useState(0)
+  const [progressMessage, setProgressMessage] = useState('')
+  const [wsClient, setWsClient] = useState<WebSocketClient | null>(null)
 
   const handleGenerate = async () => {
     if (!paperIds.trim()) {
@@ -30,7 +34,8 @@ export default function HypothesesPage() {
     try {
       const ids = paperIds.split(',').map(id => id.trim())
       
-      const response = await fetch('http://localhost:9000/api/hypotheses/generate', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9000'
+      const response = await fetch(`${apiUrl}/api/hypotheses/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -83,6 +88,18 @@ export default function HypothesesPage() {
           >
             {loading ? 'Generating...' : 'Generate Hypotheses'}
           </button>
+          
+          {loading && (
+            <div className="mt-4">
+              <div className="bg-white/5 rounded-full h-2 overflow-hidden">
+                <div
+                  className="bg-primary h-full transition-all duration-500"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+              <p className="text-white/80 text-sm mt-2">{progressMessage}</p>
+            </div>
+          )}
         </div>
 
         {results && (
