@@ -171,11 +171,11 @@ npm run test:e2e
 
 ## 🧪 테스트 커버리지
 
-| Component | Coverage | Tests |
-|-----------|----------|-------|
-| Backend   | 80%+     | 100+  |
-| Frontend  | 75%+     | 80+   |
-| E2E       | 100%     | 50+   |
+| Component | Coverage | Tests | Status |
+|-----------|----------|-------|--------|
+| Backend   | 30%+     | 20+   | ✅ Basic |
+| Frontend  | 0%       | 0     | 🚧 TODO |
+| E2E       | 0%       | 0     | 🚧 TODO |
 
 ---
 
