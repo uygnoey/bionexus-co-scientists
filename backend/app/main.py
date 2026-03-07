@@ -10,6 +10,16 @@ from app.core.config import settings
 from app.core.logging import configure_logging, get_logger
 from app.core.cache import cache
 from app.core.rate_limit import rate_limit_middleware
+from app.core.exceptions import (
+    BioNexusException,
+    bionexus_exception_handler,
+    validation_exception_handler,
+    http_exception_handler,
+    generic_exception_handler,
+)
+
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 # Configure logging on startup
 configure_logging()
@@ -71,6 +81,12 @@ app.add_middleware(
 
 # Add rate limiting middleware
 app.middleware("http")(rate_limit_middleware)
+
+# Add exception handlers
+app.add_exception_handler(BioNexusException, bionexus_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(StarletteHTTPException, http_exception_handler)
+app.add_exception_handler(Exception, generic_exception_handler)
 
 
 # Health check endpoint
