@@ -14,7 +14,10 @@
     "react-dom": "^18.2.0",
     "framer-motion": "^11.0.3",
     "zustand": "^4.5.0",
-    "axios": "^1.6.5"
+    "axios": "^1.6.5",
+    "recharts": "^2.10.0",
+    "d3-zoom": "^3.0.0",
+    "d3-selection": "^3.0.0"
   },
   "devDependencies": {
     "@types/node": "^20",

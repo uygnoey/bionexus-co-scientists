@@ -1,6 +1,17 @@
 'use client'
 
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
+
+// Dynamic import to avoid SSR issues with charts
+const HypothesisScoreChart = dynamic(
+  () => import('../../components/charts/HypothesisScoreChart'),
+  { ssr: false }
+)
+const ClusterVisualization = dynamic(
+  () => import('../../components/charts/ClusterVisualization'),
+  { ssr: false }
+)
 
 export default function HypothesesPage() {
   const [paperIds, setPaperIds] = useState('')
@@ -86,6 +97,19 @@ export default function HypothesesPage() {
                 Clusters: {results.clusters?.length || 0}
               </p>
             </div>
+
+            {/* Score Chart */}
+            {results.hypotheses && results.hypotheses.length > 0 && (
+              <HypothesisScoreChart hypotheses={results.hypotheses} />
+            )}
+
+            {/* Cluster Visualization */}
+            {results.clusters && results.clusters.length > 0 && (
+              <ClusterVisualization
+                hypotheses={results.hypotheses}
+                clusters={results.clusters}
+              />
+            )}
 
             {results.hypotheses?.map((hyp: any, idx: number) => (
               <div
