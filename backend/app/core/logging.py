@@ -1,7 +1,7 @@
 """Structured logging configuration using structlog."""
 import logging
 import sys
-from typing import Any
+from typing import Any, Dict, Optional
 
 import structlog
 from structlog.stdlib import BoundLogger
@@ -93,7 +93,7 @@ def log_function_result(func_name: str, result: Any, **kwargs: Any) -> None:
     )
 
 
-def log_error(error: Exception, context: dict[str, Any] | None = None) -> None:
+def log_error(error: Exception, context: Optional[Dict[str, Any]] = None) -> None:
     """Log an error with context.
     
     Args:
